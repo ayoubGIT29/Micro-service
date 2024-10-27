@@ -3,13 +3,15 @@ package org.example.servicevoiture;
 import org.example.servicevoiture.entities.Client;
 import org.example.servicevoiture.entities.Voiture;
 import org.example.servicevoiture.repositories.VoitureRepository;
-import org.springframework.boot.CommandLineRunner;
+import org.example.servicevoiture.clientRest.ClientService;
+import org.example.servicevoiture.clientRest.ClientService;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
-import java.util.Arrays;
-
+@EnableFeignClients
 @SpringBootApplication
 public class ServiceVoitureApplication {
 
@@ -17,22 +19,36 @@ public class ServiceVoitureApplication {
         SpringApplication.run(ServiceVoitureApplication.class, args);
     }
     @Bean
-    CommandLineRunner initData(VoitureRepository voitureRepository) {
-        return args -> {
-            // Créer des clients sans utiliser le ClientRepository
-            Client client1 = new Client(1L, "Alice", 30f);
-            Client client2 = new Client(2L, "Bob", 25f);
+    ApplicationRunner initialiserBaseH2(VoitureRepository voitureRepository, ClientService clientService){
 
-            // Créer des voitures en utilisant id_client au lieu de l'objet Client
-            Voiture voiture1 = new Voiture(null, "Toyota", "ABC123", "Corolla", client1.getId(),client1);
-            Voiture voiture2 = new Voiture(null, "Honda", "XYZ456", "Civic", client1.getId(),client1);
-            Voiture voiture3 = new Voiture(null, "Ford", "DEF789", "Focus", client2.getId(),client2);
+        return  args  ->  {
+            Client    c1    =    clientService.clientById(2L);
 
-            // Enregistrer les voitures dans la base de données
-            voitureRepository.saveAll(Arrays.asList(voiture1, voiture2, voiture3));
+            Client    c2    =    clientService.clientById(1L);
 
-            System.out.println("Données insérées dans la base de données H2.");
+            System.out.println("**************************");
+
+            System.out.println("Id  est  :"  +  c2.getId());
+
+            System.out.println("Nom est :" + c2.getNom());
+
+            System.out.println("**************************");
+
+            System.out.println("**************************");
+
+            System.out.println("Id  est  :"  +  c1.getId());
+
+            System.out.println("Nom est :" + c1.getNom());
+
+            System.out.println("Age est :" + c1.getAge());
+
+            System.out.println("**************************");
+            Voiture v1=new  Voiture(Long.parseLong("1"),  "Toyota",  "A 25  333",  "Corolla",  1L,  c2);
+            System.out.println(v1);
+
+            voitureRepository.save(new  Voiture(Long.parseLong("1"),  "Toyota",  "A 25  333",  "Corolla",  1L,  c2));
+            voitureRepository.save(new  Voiture(Long.parseLong("2"),  "Renault", "B  6  3456",  "Megane",  1L,  c2));
+            voitureRepository.save(new  Voiture(Long.parseLong("3"),  "Peugeot", "A  55  4444",  "301",  2L,  c1));
         };
     }
-
 }
